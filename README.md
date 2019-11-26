@@ -33,6 +33,7 @@
 
 데이터 수집 방법 : ‘리그 오브 레전드’에서는 자체 API를 통해 게임 플레이 데이터를 제공하고 있다. https://developer.riotgames.com/ 사이트를 통해 API 사용 신청하여 승인을 받았고, 이를 통해 naïve bayes classifier (혹은 다른 알고리즘)를 수행하는 데 충분한 데이터를 얻을 수 있다.
 
+(데이터 일부 발췌)
 데이터 예:
 1) Game id를 구한뒤에 해당 game id로 RIOT API를 이용해 해당 게임에 대한 모든 정보를 불러옴
 
