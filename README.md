@@ -13,7 +13,7 @@ naïve bayes classifier 소개 : naïve bayes classifier는 조건부 확률에 
 
 	Evaluation & Analysis
 
-`"participants": [
+```"participants": [
 224)	        {
 225)	            "spell1Id": 14,
 226)	            "participantId": 1,
@@ -551,7 +551,7 @@ naïve bayes classifier 소개 : naïve bayes classifier는 조건부 확률에 
 758)	                "playerScore5": 0,
 759)	                "playerScore4": 0,
 760)	                "playerScore7
-`
+```
 
 2.  데이터 수집 계획 : ‘리그 오브 레전드’에서는 자체 API를 통해 게임 플레이 데이터를 제공하고 있다. https://developer.riotgames.com/ 사이트를 통해 API 사용 신청하여 승인을 받았고, 이를 통해 naïve bayes classifier (혹은 다른 알고리즘)를 수행하는 데 충분한 데이터를 얻을 수 있다.
 
