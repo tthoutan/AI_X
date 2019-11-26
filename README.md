@@ -1,4 +1,5 @@
 # AI_X tech blog
+***
 ## Members
 * 박철우
 * 이윤지
