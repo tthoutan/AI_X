@@ -39,7 +39,9 @@
 1) 먼저 데이터 수집을 원하는 기간에 해당하는 게임의 데이터를 수집하기 위해 각 게임의 gameId를 수집할 필요가 있다.
 다음의 파이썬 스크립트는 SOLO RANK SILVER 티어에서의 4개의 각 DIVISON에 대해 9.23 패치가 적용되고 나서부터의 gameId를 RIOT API로 받아와서 라이엇에서 자체적으로 분류한 page 단위에 따라 csv 파일로 저장하는 스크립트이다.
 
+
 ```python
+# https://github.com/tthoutan/AI_X/get_matchlist.py
 
 import time
 import requests
@@ -162,6 +164,7 @@ def get_match_list():
 존재한다. 따라서 위의 첫번째 스크립트를 통해 만들어진 csv 파일을 통합한뒤 중복된 gameId를 제거한다.
 
 ```python
+# https://github.com/tthoutan/AI_X/remove_redundant_gameId.py
 
 import csv
 import pandas as pd
@@ -211,6 +214,7 @@ data.to_csv(f'All_gameId.csv')
 3) 그 뒤 중복제거된 gameId의 리스트를 이용해 실제로 데이터분석에 사용될 각 Match의 Player들이 고른 챔피언의 정보와 어떤 팀이 이겼는지에 대한 데이터를 수집하기 위한 파이썬 스크립트를 동작시킨다.
 
 ```python
+# https://github.com/tthoutan/AI_X/crawl_match_info.py
 
 import requests
 import pandas as pd
@@ -221,6 +225,7 @@ import argparse
 # Development API Key는 분당 50개의 request로 요청 수의 제한이 있기 때문에, 여러개의 계정으로 동시에 여러 파이썬 프로그램을 돌리기 위해 API Key를 인자
 # 로 받도록 했다. 그리고 num은 각 파이썬 프로그램이 동시에 돌기 때문에 통합된 게임아이디 csv 파일을 일정한 개수로 분할한 뒤 번호를 지정해주고 지정된 번호의 csv 
 # 파일을 불러오기 위해 사용했다.
+# csv 분할은 # https://github.com/tthoutan/AI_X/csv_spliter.py를 이용했다.
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-k","--key", required=True, help="You shoud insert Riot API Key")
