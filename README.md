@@ -45,18 +45,19 @@ import time
 import requests
 import pandas as pd
 
-header = {"X-Riot-Token":"RGAPI-60bd1475-e03f-43ea-b7f7-2ceaa6ee116f"}
+header = {"X-Riot-Token":"Your API Token Key"} # Riot Developers Page에서 Development API Key를 발급 받을 수 있다.
 default_url = "https://kr.api.riotgames.com"
 QUEUE = "RANKED_SOLO_5x5"
 TIER = "SILVER"
 DIVISON_LIST = ["I","II","III","IV"]
 start_time = "1574203380000" # 11월 20일 오전 07:43 pre_season 9.23 패치 적용 후 점검완료 시간
 
+# 각 Player의 Match List를 조회하기 위해서는, SummonerId가 아닌 AccountId가 필요한데, SummonerId를 통해 AccountId를 알 수 있다.
+# 그리고 이 get_aid 함수는 summoner_id를 인자로 받아 AccountId를 return 해주는 함수이다.
+
 def get_aid(summoner_id):
     
     path = "/lol/summoner/v4/summoners/"
-
-    # encoded_url = default_url + parse.quote(path)
 
     total_url = default_url + path + summoner_id
 
@@ -70,7 +71,9 @@ def get_aid(summoner_id):
     return response.json()['accountId']
 
 
-# 각 페이지 마다 소환사의 AccountId 리스트 리턴, 만약 페이지의 끝일 경우 None 리턴
+# queue_type(여기서는 RANKED_SOLO_5x5)과 tier(여기서는 SILVER), division(각 티어마다 I,II,III,IV가 존재함), page number를 인자로 받는다.
+# 주어진 인자의 조건에 알맞는 Player 들의 정보를 조회하는 API를 이용해 정보를 조회한 뒤, 그곳에서 SummonerId 값을 뽑아 get_aid 함수를 호출해
+# 최종적으로 Player 들의 AccountId로 이루어진 List를 만들어서 반환한다.
 
 def get_summoner_list(queue_type, tier, division, page_number):
 
@@ -96,6 +99,9 @@ def get_summoner_list(queue_type, tier, division, page_number):
 		summoner_aid_list.append(get_aid(a['summonerId']))
 
 	return summoner_aid_list
+
+
+# get_summoner_list 함수 호출을 통해 반환받은 AccountId List를 이용해 각 Player의 Match List를 조회하고 각 Match의 gameId를 뽑아 List를 만든다. 그 뒤 각 page number 마다의 List를 csv 파일로 저장한다.
 
 def get_match_list():
 
@@ -139,19 +145,23 @@ def get_match_list():
 			
 
 			match_list = list(set(match_list))
-
+			
+			# 만들어진 해당 페이지의 gameId 리스트를 csv로 export 하는 부분.
 			data = pd.DataFrame(match_list)
 			data.columns = ['gameId']
 			data.to_csv(f'{TIER}_{division}_{page_num}_gameId.csv')
 
+			# page의 수가 너무 많아서 적당한 수준의 데이터의 양을 각 디비전마다 가져오기 위해 page의 개수를 20개로 제한했다.
 			page_num+=1
 			if page_num > 20:
 				break
 			match_list=list()
 ```
 
+2. 다음으로는 각 Player들의 gameId를 수집한 것이고 '리그 오브 레전드'는 5vs5 팀게임이기 때문에, 수집된 gameId의 리스트에 중복되는 값이 많이 있을 가능성이 
+존재한다. 따라서 
 
-여기서 우리가 사용할것은 ‘participants’ key값을 가진 데이터만 뽑아서 사용함. 그중 Champion Id 값을 이용해 각 플레이어가 어떤 챔피언을 골랐는지 알 수 있음.
+
 
 ***
 <a id="chapter-3"></a>
