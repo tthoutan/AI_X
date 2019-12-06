@@ -159,8 +159,173 @@ def get_match_list():
 ```
 
 2. 다음으로는 각 Player들의 gameId를 수집한 것이고 '리그 오브 레전드'는 5vs5 팀게임이기 때문에, 수집된 gameId의 리스트에 중복되는 값이 많이 있을 가능성이 
-존재한다. 따라서 
+존재한다. 따라서 위의 첫번째 스크립트를 통해 만들어진 csv 파일을 통합한뒤 중복된 gameId를 제거한다.
 
+```python
+
+import csv
+import pandas as pd
+
+DIVISION_LIST = ["I","II","III","IV"]
+
+gameId_list = list()
+
+for division in DIVISION_LIST:
+	
+	page_num = 1
+
+	while True:
+
+		try:
+			# read할 csv 파일의 이름 형식은 첫번째 파이썬 스크립트 파일을 참조하라.
+			file_name = f"SILVER_{division}_{page_num}_gameId.csv"
+			fi = open(file_name, 'r', encoding='utf-8')
+			fi_reader = csv.reader(fi)
+		
+		# 해당 파일이 존재하지 않아 예외가 발생할 경우 while 문을 종료시키고 DIVISON_LIST의 다음 division으로 넘어간다.
+		except FileNotFoundError:
+			break
+
+		temp_list = list()
+
+		for line in fi_reader:
+			temp_list.append(line[1])
+
+		fi.close()
+
+		gameId_list.extend(temp_list)
+
+		page_num+=1
+
+# set의 속성을 이용해 중복된 데이터를 제거한다.
+gameId_list = list(set(gameId_list))
+print(len(gameId_list))
+
+data = pd.DataFrame(gameId_list)
+data.columns = ['gameId']
+# 중복제거 및 하나의 리스트로 통합된 모든 게임아이디를 csv파일로 export 한다.
+data.to_csv(f'All_gameId.csv')
+
+```
+
+3. 그 뒤 중복제거된 gameId의 리스트를 이용해 실제로 데이터분석에 사용될 각 Match의 Player들이 고른 챔피언의 정보와 어떤 팀이 이겼는지에 대한 데이터를 수집하기 위한 파이썬 스크립트를 동작시킨다.
+
+```python
+
+import requests
+import pandas as pd
+import csv
+import time
+import argparse
+
+# Development API Key는 분당 50개의 request로 요청 수의 제한이 있기 때문에, 여러개의 계정으로 동시에 여러 파이썬 프로그램을 돌리기 위해 API Key를 인자
+# 로 받도록 했다. 그리고 num은 각 파이썬 프로그램이 동시에 돌기 때문에 통합된 게임아이디 csv 파일을 일정한 개수로 분할한 뒤 번호를 지정해주고 지정된 번호의 csv 
+# 파일을 불러오기 위해 사용했다.
+
+ap = argparse.ArgumentParser()
+ap.add_argument("-k","--key", required=True, help="You shoud insert Riot API Key")
+ap.add_argument("-n","--num", required=True, help="You shoud insert the number of partition")
+args = vars(ap.parse_args())
+
+header = {"X-Riot-Token":f"{args['key']}"}
+number = args['num']
+default_url = "https://kr.api.riotgames.com"
+
+
+# response['participants'] is 10 length list -> response['participants'][n]['teamId'], response['participants'][n]['championId']
+# response['teams'][0]['win'] == Win or Fail, response['teams'][0]['teamId'] == 100 or 200
+
+def get_match_info():
+	
+	path = "/lol/match/v4/matches/"
+
+	fi = open(f"gameId_split_{number}.csv", 'r', encoding='utf-8')
+	fi_reader = csv.reader(fi)
+
+	line_count = 0
+	result_list = list()
+	file_num = 1
+	row_count = 0
+
+	for line in fi_reader:
+		if line[1]=='gameId':
+			continue
+		row_count += 1
+
+		total_url = default_url + path + line[1]
+		response = requests.get(total_url, headers=header)
+			
+		while response.status_code == 429:
+			print("info_sleep")
+			time.sleep(5)
+			response = requests.get(total_url, headers=header)
+
+		response_list = response.json()
+		# response_list['gameMode'] == "CLASSIC" 이어야 한다. KeyError가 발생할 수 있기 때문에 get method를 사용했으며, 게임의 종류에 소환사의 협곡만 있는 것이 아니기 때문에 이러한 필터링 과정을 거쳤다.
+		a = response_list.get('gameMode')
+		if a != "CLASSIC":
+			continue
+		else:
+			win_list = list() # 승리한 팀의 챔피언 조합을 담기 위한 리스트
+			fail_list = list() # 패배한 팀의 챔피언 조합을 담기 위한 리스트
+			
+			# 만일 블루팀이 승리했을 경우 승리 리스트에 블루팀의 챔피언 조합을 저장하고 레드팀의 챔피언 조합을 패배 리스트에 저장한다.
+			if response_list['teams'][0]['win'] == 'Win':
+				for i in range(0,5):
+					win_list.append(response_list['participants'][i]['championId'])
+				# 승리한 팀의 win field 값은 1.
+				win_list.append(1)
+				for i in range(5,10):
+					fail_list.append(response_list['participants'][i]['championId'])
+				# 패배한 팀의 win field 값은 0으로 한다.
+				fail_list.append(0)
+			# 그 외, 레드팀이 승리 했을 경우 승리 리스트에 레드팀의 챔피언 조합을 저장하고 블루팀의 챔피언 조합을 패배 리스트에 저장한다.
+			else:
+				for i in range(0,5):
+					fail_list.append(response_list['participants'][i]['championId'])
+				fail_list.append(0)
+				for i in range(5,10):
+					win_list.append(response_list['participants'][i]['championId'])
+				
+				win_list.append(1)
+			
+			# 결과 리스트에 승리팀과 패배팀의 조합을 차례대로 추가하고 line count를 2 추가한다.
+			result_list.append(win_list)
+			result_list.append(fail_list)
+			line_count+=2
+			
+			# 결과 리스트의 저장개수가 2000개가 될때마다 혹은 분할한 csv 파일의 행의(여기서는 30000) 끝에 도달했을 경우 여태까지의 결과 리스트를 csv 파일로 export 한다.
+			if line_count == 2000 or row_count==30000:
+				print(f"{file_num}th file completed")
+				data = pd.DataFrame(result_list)
+				data.columns = ['champ1','champ2','champ3','champ4','champ5','win']
+				data.to_csv(f'match_info_{file_num}.csv')
+				line_count = 0
+				file_num+=1
+
+			print(row_count)
+
+
+
+if __name__ == "__main__":
+	get_match_info()
+
+```
+
+위 1, 2, 3번의 파이썬 스크립트를 작동한 뒤 얻은 데이터의 형태는 아래와 같다.
+
+```
+
+[
+[champ1, champ2, champ3, champ4, champ5, win],
+[33, 81, 134, 82, 64, 1],
+[36, 57, 67, 122, 84, 0],
+[...],
+[...],
+...
+]
+
+```
 
 
 ***
