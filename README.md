@@ -50,7 +50,7 @@ TIER = "SILVER"
 DIVISON_LIST = ["I","II","III","IV"]
 start_time = "1574203380000" # 11월 20일 오전 07:43 pre_season 9.23 패치 적용 후 점검완료 시간
 
-def get_aid(summoner_id):
+1) def get_aid(summoner_id):
     
     path = "/lol/summoner/v4/summoners/"
 
