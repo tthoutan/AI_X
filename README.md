@@ -343,7 +343,7 @@ naïve bayes classifier 소개 : naïve bayes classifier는 조건부 확률에 
 <a id="chapter-4"></a>
 ### 4.Evaluation & Analysis
 
-1. 먼저 데이터를 읽고 각 변수들을 범주형 변수들로 선언해줍니다.
+1) 먼저 데이터를 읽고 각 변수들을 범주형 변수들로 선언해줍니다.
 
 ```r
 library(caret)
@@ -378,7 +378,7 @@ levels(df_match$champ1)
 
 ```
 
-2. 학습 셋과 검증 셋(80/20)으로 나누고 naïve bayes 모델을 만듭니다.(e1071 라이브러리) 이후 confusion matrix 함수(caret 라이브러리)를 통해 검증세트에서의 모델의 정확성을 살펴봅니다.
+2) 학습 셋과 검증 셋(80/20)으로 나누고 naïve bayes 모델을 만듭니다.(e1071 라이브러리) 이후 confusion matrix 함수(caret 라이브러리)를 통해 검증세트에서의 모델의 정확성을 살펴봅니다.
 
 ```r
 #train/valid
@@ -397,17 +397,16 @@ pred.class <-predict(win.nb,newdata = valid.df)
 confusionMatrix(pred.class,valid.df$win)
 ```
 
-<결과값>
+결과값
 
-
-![img1](./img/result_image1.png){: width="300px" height="300px"}
+<img src="./img/result_image1.png" width="300px" height="300px"/>
 
 
 확인 결과 정확도는 52.42%가 나왔습니다. 
 Fow.kr에서 확인 결과 9.23패치에서 최고승률 챔피언은 질리언으로 53.66%, 최저 승률 챔피언은 유미로 약 39%입니다. 유미가 비정상적으로 낮은 승률을 기록한 걸 감안하면 선택한 챔피언 평균 승률내서 예측한 것과 큰 차이가 없던가 미세하게 더 좋을 것으로 보입니다.
 아무래도 선택한 챔피언만 가지고 승리를 예측하기에는 정보가 조금 부족한게 아닐까 생각합니다.
 
-3. 다음으로 실제 사용을 위해 챔피언 5개의 선택된 상황에서 예측 승률을 보여주는 함수와, 4개가 선택된 상황에서 높은 예측 승률을 가진 챔피언을 출력하도록 하는 함수를 만들어 보겠습니다. 먼저 챔피언-코드 정보를 읽고, 예시로 사용하기 위해 임의의 5개 챔피언을 선택하였습니다.
+3) 다음으로 실제 사용을 위해 챔피언 5개의 선택된 상황에서 예측 승률을 보여주는 함수와, 4개가 선택된 상황에서 높은 예측 승률을 가진 챔피언을 출력하도록 하는 함수를 만들어 보겠습니다. 먼저 챔피언-코드 정보를 읽고, 예시로 사용하기 위해 임의의 5개 챔피언을 선택하였습니다.
 
 ```r
 #예시
@@ -448,8 +447,7 @@ champ.function <- function(x1,x2,x3,x4,x5){
  champ.function(y1,y2,y3,y4,y5)
 ```
 
-<결과값>
-
+결과값
 
 
 <img src="./img/result_image2.png" width="300px" height="100px" />
@@ -514,8 +512,7 @@ recommand.function(y1,y2,y3,y4)
 
 
 
-<결과값>
-
+결과값
 
 
 <img src="./img/result_image3.png" width="300px" height="300px" />
