@@ -554,7 +554,17 @@ head(pred.lm2)
 <a id="chapter-5"></a>
 ### 5.Related Work
 
-...준비중...
+'리그 오브 레전드'는 전세계적으로 유명하고 굉장히 인기 있는 게임이기 때문에, 위와 같은 생각을 한 유저들이 우리들 뿐만이 아니었다.
+Riot에서는 API를 통해 쉽게 데이터셋을 수집 할 수 있도록 해 놓았기 때문에 우리와 비슷한 생각을 가지고 작업한 유저들의 포스팅을 여기저기서 찾을 수 있었다.
+
+1) [League of Legends: Predicting Wins In Champion Select With Machine Learning](https://hackernoon.com/league-of-legends-predicting-wins-in-champion-select-with-machine-learning-6496523a7ea7)
+: Neural Network를 포함하여 SVM, random forest 등의 고전 머신러닝 기법을 활용 했다. 하지만 데이터의 수가 1400개 정도로 적고 각각의 챔피언에 대해 one-hot으로 했는지 embedding을 했는지 정확히 표기하지 않았다. 챔피언의 조합만으로 솔로 랭크 게임의 승률을 최대 60%가량의 정확도로 예측했다.
+
+2) [Deep LoL](https://ckcks12.com/dev-reviews/deep-lol-review/)
+: 이 포스트에서는 데이터를 취합하는 방법부터 시작해, 모델의 입력을 결정하고 CNN을 통해 추천 챔피언을 뽑아주는 것 까지 한다. 야스오와의 조합으로 말파이트, 자크. 알리스타를 추천하는 것을 포스팅에서 볼 수 있다.
+
+3) [champ2vec](https://queez0405.github.io/lol-project/)
+: 해당 포스트에서는 챔피언의 이름을 인풋으로, 단어와 단어간의 관련정도를 통해 승률을 예측했다. NLP(자연어 처리)의 word2vec을 이용해 champ2vec을 구성하고 챔피언 단어 간의 상관관계의 유의미한 정보를 추출했다.
 
 ***
 <a id="chapter-6"></a>
