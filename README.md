@@ -398,7 +398,7 @@ confusionMatrix(pred.class,valid.df$win)
 ```
 <결과>
 
-![image1](./img/result_image1.png = 200x300)
+<img src="./img/result_image1.png" width="200px" height="300px"></img>
 
 확인 결과 정확도는 52.42%가 나왔습니다. 
 Fow.kr에서 확인 결과 9.23패치에서 최고승률 챔피언은 질리언으로 53.66%, 최저 승률 챔피언은 유미로 약 39%입니다. 유미가 비정상적으로 낮은 승률을 기록한 걸 감안하면 선택한 챔피언 평균 승률내서 예측한 것과 큰 차이가 없던가 미세하게 더 좋을 것으로 보입니다.
