@@ -400,7 +400,7 @@ confusionMatrix(pred.class,valid.df$win)
 <결과값>
 
 
-<img src="./img/result_image1.png" width="300px" height="300px" />
+![img1](./img/result_image1.png){: width="300px" height="300px"}
 
 
 확인 결과 정확도는 52.42%가 나왔습니다. 
