@@ -448,7 +448,7 @@ champ.function <- function(x1,x2,x3,x4,x5){
 ```
 <결과값>
 
-<img src="./img/result_image2.png" width="200px" height="100px"></img>
+<img src="./img/result_image2.png" width="300px" height="100px"></img>
 
 임의로 적당히 시너지가 나게끔 챔피언을 선택하니 꽤 높은 예측 승률이 나왔습니다.
 다음으로 4개 챔피언이 선택되었을 때 상위 예측 승률순으로 10개 챔피언을 출력하도록 함수를 만들고 예시에 적용해보았습니다.
