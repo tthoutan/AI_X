@@ -398,7 +398,7 @@ confusionMatrix(pred.class,valid.df$win)
 ```
 <결과>
 
-![image1](./img/result_image1.png = 200*300)
+![image1](./img/result_image1.png = 200x300)
 
 확인 결과 정확도는 52.42%가 나왔습니다. 
 Fow.kr에서 확인 결과 9.23패치에서 최고승률 챔피언은 질리언으로 53.66%, 최저 승률 챔피언은 유미로 약 39%입니다. 유미가 비정상적으로 낮은 승률을 기록한 걸 감안하면 선택한 챔피언 평균 승률내서 예측한 것과 큰 차이가 없던가 미세하게 더 좋을 것으로 보입니다.
@@ -447,7 +447,7 @@ champ.function <- function(x1,x2,x3,x4,x5){
  
 ```
 <결과값>
-![image2](./img/result_image2.png =200*100)
+![image2](./img/result_image2.png =200x100)
 
 임의로 적당히 시너지가 나게끔 챔피언을 선택하니 꽤 높은 예측 승률이 나왔습니다.
 다음으로 4개 챔피언이 선택되었을 때 상위 예측 승률순으로 10개 챔피언을 출력하도록 함수를 만들고 예시에 적용해보았습니다.
@@ -509,7 +509,7 @@ recommand.function <- function(x1,x2,x3,x4){
 recommand.function(y1,y2,y3,y4)
 ```
 <결과값>
-![image3](./img/result_image3.png =300*300)
+![image3](./img/result_image3.png =300x300)
 
 참고로 예시에서 빠진 가렌의 경우 약 25번재의 순위이며 상위 승률 챔피언들은 상당수가 탑 포지션의 챔피언과 일부 미드 포지션 챔피언으로 구성되었습니다.
 
