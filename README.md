@@ -346,7 +346,6 @@ naïve bayes classifier 소개 : naïve bayes classifier는 조건부 확률에 
 1. 먼저 데이터를 읽고 각 변수들을 범주형 변수들로 선언해줍니다.
 
 ```r
-
 library(caret)
 library(e1071)
 
@@ -382,7 +381,6 @@ levels(df_match$champ1)
 2. 학습 셋과 검증 셋(80/20)으로 나누고 naïve bayes 모델을 만듭니다.(e1071 라이브러리) 이후 confusion matrix 함수(caret 라이브러리)를 통해 검증세트에서의 모델의 정확성을 살펴봅니다.
 
 ```r
-
 #train/valid
 
 set.seed(11)
@@ -397,9 +395,8 @@ win.nb <- naiveBayes(win~.,data=train.df)
 pred.pb <- predict(win.nb,newdata = valid.df, type="raw")
 pred.class <-predict(win.nb,newdata = valid.df)
 confusionMatrix(pred.class,valid.df$win)
-
 ```
-<결과>
+<결과값>
 
 <img src="./img/result_image1.png" width="300px" height="300px"></img>
 
@@ -410,7 +407,6 @@ Fow.kr에서 확인 결과 9.23패치에서 최고승률 챔피언은 질리언�
 3. 다음으로 실제 사용을 위해 챔피언 5개의 선택된 상황에서 예측 승률을 보여주는 함수와, 4개가 선택된 상황에서 높은 예측 승률을 가진 챔피언을 출력하도록 하는 함수를 만들어 보겠습니다. 먼저 챔피언-코드 정보를 읽고, 예시로 사용하기 위해 임의의 5개 챔피언을 선택하였습니다.
 
 ```r
-
 #예시
 
 df.champ <- read.csv("champ_info.csv")
@@ -448,7 +444,6 @@ champ.function <- function(x1,x2,x3,x4,x5){
 
 
  champ.function(y1,y2,y3,y4,y5)
- 
 ```
 
 <결과값>
@@ -459,7 +454,6 @@ champ.function <- function(x1,x2,x3,x4,x5){
 다음으로 4개 챔피언이 선택되었을 때 상위 예측 승률순으로 10개 챔피언을 출력하도록 함수를 만들고 예시에 적용해보았습니다.
 
 ```r
-
 #아군 4명이 정해졌을 때 추천
 
 recommand.function <- function(x1,x2,x3,x4){
@@ -523,7 +517,6 @@ recommand.function(y1,y2,y3,y4)
 한계점으로서 승률 예측에 더 많은 정보(해당 플레이어가 선택한 챔피언 및 포지션에서의 승률과 판수 정보 등등)를 포함하면 예측력이 더 좋을 것으로 기대한다는 점과 다른 알고리즘들을 못 돌린 것을 지적하면 될 것 같습니다.
 
 ```r
-
 #번외 로지스틱 회귀(안돌아가서 데이터 10%만쓴걸로 다시)
 
 lm.fit <- glm(win~.,data=train.df,family = binomial)
@@ -548,7 +541,6 @@ pred.lm2 <- predict(lm.fit2,newdata=nv.df,type="response")
 pred.lm2 <- factor(ifelse(pred.lm2>0.5,1,0))
 confusionMatrix(pred.lm2,nv.df$win)
 head(pred.lm2)
-
 ```
 
 
