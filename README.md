@@ -400,7 +400,7 @@ confusionMatrix(pred.class,valid.df$win)
 <결과값>
 
 
-<img src="./img/result_image1.png" width="300px" height="300px">
+<img src="./img/result_image1.png" width="300px" height="300px" />
 
 
 확인 결과 정확도는 52.42%가 나왔습니다. 
@@ -452,7 +452,7 @@ champ.function <- function(x1,x2,x3,x4,x5){
 
 
 
-<img src="./img/result_image2.png" width="300px" height="100px">
+<img src="./img/result_image2.png" width="300px" height="100px" />
 
 
 
@@ -518,7 +518,7 @@ recommand.function(y1,y2,y3,y4)
 
 
 
-<img src="./img/result_image3.png" width="300px" height="300px">
+<img src="./img/result_image3.png" width="300px" height="300px" />
 
 참고로 예시에서 빠진 가렌의 경우 약 25번재의 순위이며 상위 승률 챔피언들은 상당수가 탑 포지션의 챔피언과 일부 미드 포지션 챔피언으로 구성되었습니다.
 
