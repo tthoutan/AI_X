@@ -39,7 +39,9 @@
 1) 먼저 데이터 수집을 원하는 기간에 해당하는 게임의 데이터를 수집하기 위해 각 게임의 gameId를 수집할 필요가 있다.
 다음의 파이썬 스크립트는 SOLO RANK SILVER 티어에서의 4개의 각 DIVISON에 대해 9.23 패치가 적용되고 나서부터의 gameId를 RIOT API로 받아와서 라이엇에서 자체적으로 분류한 page 단위에 따라 csv 파일로 저장하는 스크립트이다.
 
+
 ```python
+# https://github.com/tthoutan/AI_X/get_matchlist.py
 
 import time
 import requests
@@ -162,6 +164,7 @@ def get_match_list():
 존재한다. 따라서 위의 첫번째 스크립트를 통해 만들어진 csv 파일을 통합한뒤 중복된 gameId를 제거한다.
 
 ```python
+# https://github.com/tthoutan/AI_X/remove_redundant_gameId.py
 
 import csv
 import pandas as pd
@@ -211,6 +214,7 @@ data.to_csv(f'All_gameId.csv')
 3) 그 뒤 중복제거된 gameId의 리스트를 이용해 실제로 데이터분석에 사용될 각 Match의 Player들이 고른 챔피언의 정보와 어떤 팀이 이겼는지에 대한 데이터를 수집하기 위한 파이썬 스크립트를 동작시킨다.
 
 ```python
+# https://github.com/tthoutan/AI_X/crawl_match_info.py
 
 import requests
 import pandas as pd
@@ -221,6 +225,7 @@ import argparse
 # Development API Key는 분당 50개의 request로 요청 수의 제한이 있기 때문에, 여러개의 계정으로 동시에 여러 파이썬 프로그램을 돌리기 위해 API Key를 인자
 # 로 받도록 했다. 그리고 num은 각 파이썬 프로그램이 동시에 돌기 때문에 통합된 게임아이디 csv 파일을 일정한 개수로 분할한 뒤 번호를 지정해주고 지정된 번호의 csv 
 # 파일을 불러오기 위해 사용했다.
+# csv 분할은 # https://github.com/tthoutan/AI_X/csv_spliter.py를 이용했다.
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-k","--key", required=True, help="You shoud insert Riot API Key")
@@ -338,7 +343,207 @@ naïve bayes classifier 소개 : naïve bayes classifier는 조건부 확률에 
 <a id="chapter-4"></a>
 ### 4.Evaluation & Analysis
 
-...준비중...
+1. 먼저 데이터를 읽고 각 변수들을 범주형 변수들로 선언해줍니다.
+```r
+library(caret)
+library(e1071)
+
+
+
+#데이터 불러오기
+
+df_match1 <- read.csv("match_info_partition1_8.csv")
+df_match2 <- read.csv("match_info_partition1_23.csv")
+df_match3 <- read.csv("match_info_partition2_23.csv")
+df_match4 <- read.csv("match_info_partition3_23.csv")
+df_match5 <- read.csv("match_info_partition4_22.csv")
+
+df_match <- rbind(df_match1[,-1],df_match2[,-1],df_match3[,-1],df_match4[,-1],df_match5[,-1])
+
+df_match$champ1 <-factor(df_match$champ1)
+df_match$champ2 <-factor(df_match$champ2)
+df_match$champ3 <-factor(df_match$champ3)
+df_match$champ4 <-factor(df_match$champ4)
+df_match$champ5 <-factor(df_match$champ5) 
+df_match$win <- factor(df_match$win)
+
+df_match$champ1 <- relevel(df_match$champ1,ref="1")
+df_match$champ2 <- relevel(df_match$champ2,ref="1")
+df_match$champ3 <- relevel(df_match$champ3,ref="1")
+df_match$champ4 <- relevel(df_match$champ4,ref="1")
+df_match$champ5 <- relevel(df_match$champ5,ref="1")
+df_match$win <- relevel(df_match$win,ref="1")
+
+summary(df_match$champ1)
+levels(df_match$champ1)
+```
+
+2. 학습 셋과 검증 셋(80/20)으로 나누고 naïve bayes 모델을 만듭니다.(e1071 라이브러리) 이후 confusion matrix 함수(caret 라이브러리)를 통해 검증세트에서의 모델의 정확성을 살펴봅니다.
+
+```r
+#train/valid
+
+set.seed(11)
+
+ti <- sample(c(1:dim(df_match)[1]),dim(df_match)[1]*0.8)
+train.df <- df_match[ti,]
+valid.df <- df_match[-ti,]
+
+
+win.nb <- naiveBayes(win~.,data=train.df)
+
+pred.pb <- predict(win.nb,newdata = valid.df, type="raw")
+pred.class <-predict(win.nb,newdata = valid.df)
+confusionMatrix(pred.class,valid.df$win)
+```
+<결과>
+![image1](./img/result_image1.png)
+
+확인 결과 정확도는 52.42%가 나왔습니다. 
+Fow.kr에서 확인 결과 9.23패치에서 최고승률 챔피언은 질리언으로 53.66%, 최저 승률 챔피언은 유미로 약 39%입니다. 유미가 비정상적으로 낮은 승률을 기록한 걸 감안하면 선택한 챔피언 평균 승률내서 예측한 것과 큰 차이가 없던가 미세하게 더 좋을 것으로 보입니다.
+아무래도 선택한 챔피언만 가지고 승리를 예측하기에는 정보가 조금 부족한게 아닐까 생각합니다.
+
+3. 다음으로 실제 사용을 위해 챔피언 5개의 선택된 상황에서 예측 승률을 보여주는 함수와, 4개가 선택된 상황에서 높은 예측 승률을 가진 챔피언을 출력하도록 하는 함수를 만들어 보겠습니다. 먼저 챔피언-코드 정보를 읽고, 예시로 사용하기 위해 임의의 5개 챔피언을 선택하였습니다.
+
+```r
+#예시
+
+df.champ <- read.csv("champ_info.csv")
+head(df.champ)
+
+y1 <- "Zac"
+y2 <- "Yasuo"
+y3 <- "Ashe"
+y4 <- "Nautilus"
+y5 <- "Garen"
+
+#5개 다 정해진 경우
+
+champ.function <- function(x1,x2,x3,x4,x5){
+  
+  for(i in 1:146){
+    
+    if(df.champ[i,3]==x1){champ1 <- df.champ[i,2]}
+    if(df.champ[i,3]==x2){champ2 <- df.champ[i,2]}
+    if(df.champ[i,3]==x3){champ3 <- df.champ[i,2]}
+    if(df.champ[i,3]==x4){champ4 <- df.champ[i,2]}
+    if(df.champ[i,3]==x5){champ5 <- df.champ[i,2]}
+  
+  }
+  
+  temp <- data.frame(champ1,champ2,champ3,champ4,champ5)
+  
+  for(i in 1:5){
+    temp[,i] <- factor(temp[,i])
+  }
+  prob <- predict(win.nb, newdata = temp,type='raw')
+  return(prob)
+  
+}
+
+
+ champ.function(y1,y2,y3,y4,y5)
+ 
+```
+<결과값>
+![image2](./img/result_image2.png)
+
+임의로 적당히 시너지가 나게끔 챔피언을 선택하니 꽤 높은 예측 승률이 나왔습니다.
+다음으로 4개 챔피언이 선택되었을 때 상위 예측 승률순으로 10개 챔피언을 출력하도록 함수를 만들고 예시에 적용해보았습니다.
+
+```r
+#아군 4명이 정해졌을 때 추천
+
+
+
+recommand.function <- function(x1,x2,x3,x4){
+  
+  for(i in 1:146){
+    
+    if(df.champ[i,3]==x1){champ1 <- df.champ[i,2]}
+    if(df.champ[i,3]==x2){champ2 <- df.champ[i,2]}
+    if(df.champ[i,3]==x3){champ3 <- df.champ[i,2]}
+    if(df.champ[i,3]==x4){champ4 <- df.champ[i,2]}
+    
+  }
+  
+  list <- df.champ$key
+  list2 <- setdiff(list,champ1)
+  list2 <- setdiff(list2,champ2)
+  list2 <- setdiff(list2,champ3)
+  list2 <- setdiff(list2,champ4)
+  
+  list3 <- df.champ$name
+  list3 <- setdiff(list3,x1)
+  list3 <- setdiff(list3,x2)
+  list3 <- setdiff(list3,x3)
+  list3 <- setdiff(list3,x4)
+  
+  tmp <- data.frame(champ1=c(1:142),champ2=c(1:142),champ3=c(1:142),champ4=c(1:142),champ5=c(1:142))
+  for(i in 1:142){
+    tmp$champ1[i] <- champ1
+    tmp$champ2[i] <- champ2
+    tmp$champ3[i] <- champ3
+    tmp$champ4[i] <- champ4
+    tmp$champ5[i] <- list2[i]
+  }
+  for(i in 1:5){
+    tmp[,i] <- factor(tmp[,i])
+  }
+  
+  for(i in 1:4){
+    
+  }
+  
+  
+  prob <- predict(win.nb,newdata = tmp,type='raw')
+  tmp2 <- data.frame(tmp$champ5,name=list3,prob[,1])
+  tmp2 <- tmp2[c(order(-tmp2$prob)),]
+  return(head(tmp2,10))
+  
+}
+
+
+
+recommand.function(y1,y2,y3,y4)
+```
+<결과값>
+![image3](./img/result_image3.png)
+
+참고로 예시에서 빠진 가렌의 경우 약 25번재의 순위이며 상위 승률 챔피언들은 상당수가 탑 포지션의 챔피언과 일부 미드 포지션 챔피언으로 구성되었습니다.
+
+마지막으로 번외로 로지스틱 회귀도 돌려보았는데 데이터가 커서 잘 안돌아갔습니다. 이후 10%만 랜덤 추출하여 돌려 보았더니 정확도가 49%수준이어서 폐기했습니다. 애초에 로지스틱 모형은 변수들간 독립가정이 들어가기 때문에 데이터 및 취지와 맞지 않습니다만 덕분에 다른 더 큰 연산력을 요구하는 알고리즘들은 시도하는 것을 포기했습니다.
+한계점으로서 승률 예측에 더 많은 정보(해당 플레이어가 선택한 챔피언 및 포지션에서의 승률과 판수 정보 등등)를 포함하면 예측력이 더 좋을 것으로 기대한다는 점과 다른 알고리즘들을 못 돌린 것을 지적하면 될 것 같습니다.
+
+```r
+#번외 로지스틱 회귀(안돌아가서 데이터 10%만쓴걸로 다시)
+
+
+
+lm.fit <- glm(win~.,data=train.df,family = binomial)
+lm.fit
+pred.lm <- predict(lm.fit,newdata=valid.df)
+confusionMatrix(pred.lm,valid.df$win)
+
+
+
+new<- sample(c(1:dim(df_match)[1]),dim(df_match)[1]*0.1)
+new.df <- df_match[new,]
+
+nt <- sample(c(1:dim(new.df)[1]),dim(new.df)[1]*0.8)
+nt.df <- new.df[nt,]
+nv.df <- new.df[-nt,]
+
+
+lm.fit2 <- glm(win~.,data=nt.df,family = binomial)
+lm.fit2
+head(nv.df)
+pred.lm2 <- predict(lm.fit2,newdata=nv.df,type="response")
+pred.lm2 <- factor(ifelse(pred.lm2>0.5,1,0))
+confusionMatrix(pred.lm2,nv.df$win)
+head(pred.lm2)
+```
+
 
 ***
 <a id="chapter-5"></a>
