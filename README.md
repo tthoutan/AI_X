@@ -5,6 +5,11 @@
 
 ***
 
+## Video URL
+[video](https://youtu.be/gA7Tu_vCOXo)
+
+***
+
 ## Members & Role
 * 박철우, 정보시스템학과, tthoutan@gmail.com / 데이터 수집 및 처리, 블로그 작성
 * 이윤지, 수학과, yoonji811@gmail.com / 동영상 촬영
