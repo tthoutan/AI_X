@@ -6,7 +6,7 @@
 ***
 
 ## Video URL
-[Youtube_Video](https://youtu.be/gA7Tu_vCOXo)
+[https://youtu.be/gA7Tu_vCOXo](https://youtu.be/gA7Tu_vCOXo)
 
 ***
 
